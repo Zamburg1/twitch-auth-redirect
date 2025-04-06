@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Twitch Auth Redirect</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .code-box {
+            padding: 15px;
+            background: #f0f0f0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 18px;
+            margin: 20px 0;
+            word-break: break-all;
+        }
+        .copy-btn {
+            background: #9147ff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .copy-btn:hover {
+            background: #772ce8;
+        }
+        .status {
+            margin-top: 10px;
+            font-style: italic;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Twitch Authentication</h1>
+        <div id="result-area">
+            <p>Loading authorization data...</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const resultArea = document.getElementById('result-area');
+            
+            // Extract the authorization code or error from the URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const authCode = urlParams.get('code');
+            const error = urlParams.get('error');
+            const errorDescription = urlParams.get('error_description');
+            
+            if (authCode) {
+                // Success - show the authorization code
+                resultArea.innerHTML = `
+                    <p>Authorization successful! Copy this code and paste it into your application:</p>
+                    <div class="code-box" id="auth-code">${authCode}</div>
+                    <button class="copy-btn" onclick="copyCode()">Copy Code</button>
+                    <p class="status" id="copy-status"></p>
+                    <p>After copying, you can close this window and return to your application.</p>
+                `;
+            } else if (error) {
+                // Error occurred
+                resultArea.innerHTML = `
+                    <p>An error occurred during authorization:</p>
+                    <p><strong>${error}</strong>: ${errorDescription || 'No description provided'}</p>
+                    <p>Please return to your application and try again.</p>
+                `;
+            } else {
+                // No code or error found
+                resultArea.innerHTML = `
+                    <p>No authorization code found in the URL.</p>
+                    <p>This page should be accessed from a Twitch authorization flow.</p>
+                `;
+            }
+        });
+        
+        function copyCode() {
+            const codeElement = document.getElementById('auth-code');
+            const statusElement = document.getElementById('copy-status');
+            
+            // Create a range and select the text
+            const range = document.createRange();
+            range.selectNode(codeElement);
+            window.getSelection().removeAllRanges();
+            window.getSelection().addRange(range);
+            
+            // Copy the text
+            try {
+                document.execCommand('copy');
+                statusElement.textContent = 'Code copied to clipboard!';
+                window.getSelection().removeAllRanges();
+            } catch (err) {
+                statusElement.textContent = 'Failed to copy code. Please select and copy manually.';
+            }
+        }
+    </script>
+</body>
+</html>
