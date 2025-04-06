@@ -93,25 +93,27 @@
       });
 
       function copyCode() {
-        const codeElement = document.getElementById("auth-code");
-        const statusElement = document.getElementById("copy-status");
-
-        // Create a range and select the text
-        const range = document.createRange();
-        range.selectNode(codeElement);
-        window.getSelection().removeAllRanges();
-        window.getSelection().addRange(range);
-
-        // Copy the text
-        try {
-          document.execCommand("copy");
-          statusElement.textContent = "Code copied to clipboard!";
-          window.getSelection().removeAllRanges();
-        } catch (err) {
-          statusElement.textContent =
-            "Failed to copy code. Please select and copy manually.";
-        }
-      }
+    const codeElement = document.getElementById('auth-code');
+    const statusElement = document.getElementById('copy-status');
+    
+    // Create a temporary textarea element to copy text without extra spaces
+    const textarea = document.createElement('textarea');
+    textarea.value = codeElement.textContent.trim(); // Add trim() to remove any spaces
+    textarea.style.position = 'absolute';
+    textarea.style.left = '-9999px';
+    document.body.appendChild(textarea);
+    textarea.select();
+    
+    // Copy the text
+    try {
+        document.execCommand('copy');
+        statusElement.textContent = 'Code copied to clipboard!';
+        document.body.removeChild(textarea);
+    } catch (err) {
+        statusElement.textContent = 'Failed to copy code. Please select and copy manually.';
+        document.body.removeChild(textarea);
+    }
+  }
     </script>
   </body>
 </html>
